@@ -1,0 +1,193 @@
+Primero instalar la powershell
+
+segundo
+
+Una vez instalada la powershell, podemos utilizarla para realizar una variedad de tareas
+primero creamos la terminal virtual 
+python -m venv env
+
+Luego activamos la terminal 
+env\Scripts\activate
+
+si tira error de carga del archivo 
+
+ejecutar este comando 
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process
+para cambiar la politica de la sesion
+
+luego ejecutar pip install django
+pip install django peewee django-cors-headers djangorestframework
+
+
+una vez instaladas ejecutamos
+django-admin startproject backend
+para crear proyecto .
+
+
+una vez adentro, vamos a crear el primer modelo 
+entramos a la carpeta backend y ejecutamos
+python manage.py startapp delitos
+
+ahi van a ver como se crea una carpeta adentro 
+
+ahora dentro de la carpeta backend van a ver 2 carpetas 
+una segunda carpeta backend y la carpeta delito 
+dentro de la carpeta backend entramos en settings.py
+Buscá la sección INSTALLED_APPS y agregá:
+
+    'rest_framework',
+    'corsheaders',
+    'delitos',
+
+y agregamos esas app para que sean tomadas por el sistema
+Y también habilitá CORS (para permitir conexión desde el frontend React):
+
+MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
+    ...
+]
+
+
+CORS_ALLOW_ALL_ORIGINS = True
+
+Creamos el archivo db.py dentro de la carpeta delitos:
+y empezamos a codeear peewee
+from peewee import SqliteDatabase
+
+db = SqliteDatabase("delitos.db")
+
+
+Editá delitos/models.py así:
+
+from peewee import *
+from datetime import datetime, date
+from database import db
+
+class BaseModel(Model):
+    class Meta:
+        database = db
+
+class Usuario(BaseModel):
+    username = CharField(unique=True, max_length=50)
+    password_hash = CharField(max_length=255)
+    rol = CharField(choices=[('admin', 'admin'), ('editor', 'editor'), ('consulta', 'consulta')])
+    comisaria_asignada = IntegerField(null=True)
+    activo = BooleanField(default=True)
+
+class Delito(BaseModel):
+    expediente = CharField(unique=True, max_length=50)
+    nombre_delito = CharField(max_length=100, choices=[
+        ('Amenazas', 'Amenazas'),
+        ('Lesiones dolosas', 'Lesiones dolosas'),
+        ('Otros delitos contra las personas', 'Otros delitos contra las personas'),
+        ('Otros delitos contra la integridad sexual', 'Otros delitos contra la integridad sexual'),
+        ('Otros delitos contra la libertad', 'Otros delitos contra la libertad'),
+        ('Abusos sexuales con acceso carnal', 'Abusos sexuales con acceso carnal'),
+        ('Homicidios dolosos', 'Homicidios dolosos'),
+        ('Homicidios dolosos en grado de tentativa', 'Homicidios dolosos en grado de tentativa'),
+        ('Abuso sexual simple', 'Abuso sexual simple'),
+        ('Abuso sexual agravado', 'Abuso sexual agravado')
+    ])
+    fecha_ocurrencia = DateField()
+    descripcion = TextField(null=True)
+    id_comisaria = IntegerField()
+    fecha_registro = DateTimeField(default=datetime.now)
+
+class Victima(BaseModel):
+    genero = CharField(choices=[('F', 'Femenino'), ('M', 'Masculino'), ('X', 'No binario'), ('ND', 'Sin determinar')])
+    fecha_nacimiento = DateField()
+    comuna_residencia = IntegerField(constraints=[Check('comuna_residencia BETWEEN 1 AND 15')])
+    delito = ForeignKeyField(Delito, backref='victimas', on_delete='CASCADE')
+
+    @property
+    def es_menor(self):
+        """Devuelve True si la víctima era menor al momento del delito."""
+        if self.delito:
+            edad_en_el_delito = self.delito.fecha_ocurrencia.year - self.fecha_nacimiento.year
+            return edad_en_el_delito < 18
+        return None
+
+
+despues dentro de la primer carpeta de backend al mismo nivel que backend y delitos 
+crear archivo database.py
+
+ejecutar pip install dotenv
+
+y en el codigo ingresar 
+
+from peewee import MySQLDatabase
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+db = MySQLDatabase(
+    os.getenv('DB_NAME'),
+    user=os.getenv('DB_USER'),
+    password=os.getenv('DB_PASS'),
+    host=os.getenv('DB_HOST', 'localhost'),
+    port=int(os.getenv('DB_PORT', 3306))
+)
+
+
+crear una archivo .env al mismo nivel que el archivo database.py 
+siendo este para configurar la conexion
+con los siguientes datos
+
+
+DB_NAME=seguridad_ciudadana
+DB_USER=usuario
+DB_PASS=clave
+DB_HOST=localhost
+DB_PORT=3306
+
+ahora en el nivel de backend crear archivo mmodels.py  
+# models.py
+
+import os
+from peewee import *
+from playhouse.db_url import connect
+from dotenv import load_dotenv
+
+# Cargar variables del entorno desde el .env
+load_dotenv()
+
+# Conexión a la base de datos MySQL
+db = MySQLDatabase(
+    os.getenv("DB_NAME"),
+    user=os.getenv("DB_USER"),
+    password=os.getenv("DB_PASS"),
+    host=os.getenv("DB_HOST"),
+    port=int(os.getenv("DB_PORT"))
+)
+
+class BaseModel(Model):
+    class Meta:
+        database = db
+
+class Delito(BaseModel):
+    id_delito = AutoField()
+    expediente = CharField(unique=True, max_length=50)
+    nombre_delito = CharField(max_length=100)  # Validación en la API
+    fecha_ocurrencia = DateField()
+    descripcion = TextField(null=True)
+    id_comisaria = IntegerField()
+    fecha_registro = DateTimeField(constraints=[SQL('DEFAULT CURRENT_TIMESTAMP')])
+
+class Victima(BaseModel):
+    id_victima = AutoField()
+    genero = CharField(max_length=1)  # 'F', 'M', 'X', 'O'
+    fecha_nacimiento = DateField()
+    comuna_residencia = IntegerField(constraints=[Check('comuna_residencia BETWEEN 1 AND 15')])
+    es_menor = BooleanField()
+    id_delito = ForeignKeyField(Delito, backref='victimas', on_delete='CASCADE')
+
+class Usuario(BaseModel):
+    id_usuario = AutoField()
+    username = CharField(unique=True, max_length=50)
+    password_hash = CharField(max_length=255)
+    rol = CharField(constraints=[Check("rol IN ('admin', 'editor', 'consulta')")])
+    comisaria_asignada = IntegerField(null=True)
+    activo = BooleanField(default=True)
+
+
