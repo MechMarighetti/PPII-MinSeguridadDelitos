@@ -1,0 +1,18 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Sistema de Denuncias{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'css/estilos.css' %}">    
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <div class="container">
+        {% block content %}
+        <!-- Acá se insertará el contenido de cada página -->
+        {% endblock %}
+    </div>
+</body>
+</html>

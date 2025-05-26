@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block title %}Inicio | Sistema de Registro de Delitos{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Sistema de Registro de Delitos</h1>
+    <p>Bienvenido/a al sistema de gestión de denuncias policiales para las comisarías de la Ciudad Autónoma de Buenos Aires.</p>
+
+    <h2>Acciones rápidas</h2>
+    <ul>
+        <li><a href="{% url 'registrar_denuncia' %}">Registrar una nueva denuncia</a></li>
+        <li><a href="#">Ver denuncias registradas</a></li>
+        <!-- Podés agregar más enlaces si hay más funcionalidades -->
+    </ul>
+</div>
+{% endblock %}
