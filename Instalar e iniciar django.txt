@@ -16,20 +16,31 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process
 para cambiar la politica de la sesion
 
 luego ejecutar pip install django
-pip install django peewee django-cors-headers djangorestframework
+pip install -r requirements.txt
+
+Este comando sincroniza la base de datos con los modelos de tu aplicación, asegurando que la estructura de la base de datos refleje el código actual.
+Antes de ejecutar migrate, normalmente se usa python manage.py makemigrations para generar los archivos de migración a partir de los cambios en los modelos.
+python manage.py migrate
+
+Run server
+python manage.py runserver
+
+Cear un superuser
+python manage.py createsuperuser
+
+Username: 
+Email address:
+Password:
 
 
+PROYECTO NUEVO
 una vez instaladas ejecutamos
 django-admin startproject backend
 para crear proyecto .
-
-
 una vez adentro, vamos a crear el primer modelo 
 entramos a la carpeta backend y ejecutamos
 python manage.py startapp delitos
-
 ahi van a ver como se crea una carpeta adentro 
-
 ahora dentro de la carpeta backend van a ver 2 carpetas 
 una segunda carpeta backend y la carpeta delito 
 dentro de la carpeta backend entramos en settings.py
