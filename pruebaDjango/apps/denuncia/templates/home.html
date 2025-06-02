@@ -8,10 +8,12 @@
     <p>Bienvenido/a al sistema de gestión de denuncias policiales para las comisarías de la Ciudad Autónoma de Buenos Aires.</p>
 
     <h2>Acciones rápidas</h2>
-    <ul>
-        <li><a href="{% url 'registrar_denuncia' %}">Registrar una nueva denuncia</a></li>
-        <li><a href="#">Ver denuncias registradas</a></li>
+        <div class="acciones-rapidas">
+        <a href="{% url 'registrar_denuncia' %}" class="btn">📝 Registrar denuncia</a>
+        <a href="#" class="btn">📋 Ver denuncias</a>
+        <a href="#" class="btn">📊 Estadisticas</a>
+        </div>
+
         <!-- Podés agregar más enlaces si hay más funcionalidades -->
-    </ul>
 </div>
 {% endblock %}
