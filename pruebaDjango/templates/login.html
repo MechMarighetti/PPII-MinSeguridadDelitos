@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% load static %}
+<img src="{% static 'images/logo.png' %}" alt="Logo" style="width: 100px;">
+
+
+{% block title %}Acceso al sistema{% endblock %}
+
+{% block content %}
+<style>
+    body {
+        background: linear-gradient(120deg, #007bff, #6610f2);
+        color: white;
+    }
+    .login-container {
+        background-color: white;
+        color: #333;
+        padding: 2rem;
+        border-radius: 1rem;
+        box-shadow: 0 0 30px rgba(0,0,0,0.2);
+    }
+</style>
+
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 90vh;">
+    <div class="login-container w-100" style="max-width: 400px;">
+        <div class="d-flex flex-column align-items-center text-center mb-4">
+            <img src="{% static 'images/logo.png' %}" alt="Logo" class="mb-2" style="width: 80px;">
+            <h3 class="fw-bold">Sistema de Denuncias</h3>
+            <p class="text-muted">Ingresá con tu usuario</p>
+        </div>
+
+
+        {% if form.errors %}
+            <div class="alert alert-danger">
+                Usuario o contraseña incorrectos.
+            </div>
+        {% endif %}
+
+        <form method="post" novalidate>
+            {% csrf_token %}
+            <div class="form-group mb-3">
+                <label for="id_username" class="form-label">Usuario</label>
+                {{ form.username}}
+            </div>
+
+            <div class="form-group mb-4">
+                <label for="id_password" class="form-label">Contraseña</label>
+                {{ form.password }}
+            </div>
+
+            <div class="d-grid">
+                <button type="submit" class="btn btn-primary btn-lg">Ingresar</button>
+            </div>
+        </form>
+
+        <div class="text-center mt-3">
+            <small class="text-muted">© 2025 Seguridad Ciudadana</small>
+        </div>
+    </div>
+</div>
+{% endblock %}
