@@ -37,12 +37,14 @@ DJANGO_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'widget_tweaks',
 ]
 
 LOCAL_APPS = [
     'apps.denuncia',
     'apps.usuario',
     'apps.victima',
+    
 ]
 
 INSTALLED_APPS = DJANGO_APPS + LOCAL_APPS
@@ -63,7 +65,7 @@ import os
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR/"templates"],
+        'DIRS': [BASE_DIR/'templates'],
         'DIRS': [os.path.join(BASE_DIR, 'templates')], 
         'APP_DIRS': True,
         'OPTIONS': {
@@ -72,6 +74,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'apps.usuario.context_processors.roles_context',
+                'django.contrib.auth.context_processors.auth',
             ],
         },
     },
@@ -131,6 +135,7 @@ STATICFILES_DIRS = [BASE_DIR / "static"]
 
 LOGIN_REDIRECT_URL = 'home'
 LOGIN_URL = 'login'
+LOGOUT_REDIRECT_URL = 'login'
 
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),

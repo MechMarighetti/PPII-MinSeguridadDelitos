@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-5">
+    <div class="d-flex justify-content-end mb-3">
+        <a href="{% url 'home' %}" class="btn btn-info text-white shadow-sm px-4">VOLVER</a>
+    </div>
+
+    <h3 class="mb-4 text-center">Listado de Denuncias</h3>
+    
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover table-striped align-middle">
+            <thead class="table-primary text-center">
+                <tr>
+                    <th>ID</th>
+                    <th>Fecha</th>
+                    <th>Tipo</th>
+                    <th>Descripción</th>
+                    <th>Comisaría</th>
+                    <th>Registro</th>
+                    <th>Género</th>
+                    <th>Comuna</th>
+                    <th>Nacimiento</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for denuncia in denuncias %}
+                <tr>
+                    <td class="text-center">{{ denuncia.id }}</td>
+                    <td>{{ denuncia.fecha_ocurrencia|date:"d/m/Y" }}</td>
+                    <td>{{ denuncia.delito.nombre }}</td>
+                    <td>{{ denuncia.descripcion }}</td>
+                    <td class="text-center">{{ denuncia.get_comisaria_display }}</td>
+                    <td>{{ denuncia.fecha_registro|date:"d/m/Y H:i" }}</td>
+                    <td>{{ denuncia.victima.get_genero_display }}</td>
+                    <td class="text-center">{{ denuncia.victima.get_comuna_residencia_display }}</td>
+                    <td>{{ denuncia.victima.fecha_nacimiento|date:"d/m/Y" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="9" class="text-center text-muted">No hay denuncias registradas.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

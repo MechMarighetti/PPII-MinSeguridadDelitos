@@ -26,11 +26,18 @@ class Denuncia(models.Model):
 
     delito = models.ForeignKey("denuncia.Delito", on_delete=models.CASCADE, related_name="denuncia")
     victima = models.ForeignKey("victima.Victima", on_delete=models.CASCADE, related_name="denuncia")
-    expediente = models.CharField(max_length=50, unique=True)
+    expediente = models.CharField(max_length=50, unique=True,blank=True)
     fecha_ocurrencia = models.DateField()
     descripcion = models.TextField(blank=True, null=True)
     comisaria = models.PositiveIntegerField(choices=COMISARIAS)
     fecha_registro = models.DateTimeField(default=timezone.now)
+    
+    def save(self, *args, **kwargs):
+        if not self.expediente:
+            año = timezone.now().year
+            cantidad = Denuncia.objects.filter(fecha_registro__year=año).count() + 1
+            self.expediente = f"EXP-{cantidad:04d}-{año}"
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.id} {self.delito} {self.comisaria} {self.fecha_registro}"
