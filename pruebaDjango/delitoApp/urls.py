@@ -20,9 +20,8 @@ from django.urls import path, include,path, include
 from apps.denuncia import views as denuncia_views
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', denuncia_views.home, name='home'),
-    path('admin/', admin.site.urls),
-    path('login/', auth_views.LoginView.as_view(template_name='login.html'), name='login'),
+    path('', auth_views.LoginView.as_view(template_name='login.html'), name='login'),
+    path('home', denuncia_views.home, name='home'),
     path('logout/', auth_views.LogoutView.as_view(next_page='login'), name='logout'),
     path('', include('apps.denuncia.urls')),
 ]

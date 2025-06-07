@@ -10,10 +10,13 @@ class Victima(models.Model):
     ('S', 'Sin determinar')
     
 )
-    COMUNAS = [(i, f"Comuna {i}") for i in range(1, 16)] 
+    COMUNAS = [(i, f"Comuna {i}") for i in range(1, 16)]
+    nombre = models.CharField(max_length=50)
+    apellido = models.CharField(max_length=50)
+    dni = models.CharField(max_length=10, unique=True) 
     genero = models.CharField(max_length=30, choices=GENEROS)
     fecha_nacimiento = models.DateField()
     comuna_residencia = models.PositiveIntegerField(choices=COMUNAS)
 
     def __str__(self):
-        return f"Victima {self.genero}"
+        return f"{self. nombre} {self.apellido} {self.genero}"
