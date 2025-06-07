@@ -1,59 +1,120 @@
 import os
 import django
 import random
-from datetime import datetime, timedelta
 from faker import Faker
+from django.utils import timezone
+from django.db import connection
 
-# Configurar entorno Django
+# Setup Django
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "delitoApp.settings")
 django.setup()
 
+from apps.denuncia.models import Denuncia, Delito
 from apps.victima.models import Victima
-from apps.denuncia.models import Delito, Denuncia
 
-faker = Faker('es_AR')
+fake = Faker('es_ES')
 
-def generar_victimas(n=400):
-    generos = ['F', 'M', 'X', 'S']
-    comunas = list(range(1, 16))
+# 🔁 Resetear tablas
+def reset_tabla(model):
+    model.objects.all().delete()
+    with connection.cursor() as cursor:
+        table = model._meta.db_table
+        cursor.execute(f"DELETE FROM sqlite_sequence WHERE name='{table}';")  # SQLite
+    print(f"🧹 Tabla {model.__name__} limpiada y reiniciada.")
 
-    for _ in range(n):
-        fecha_nacimiento = faker.date_between(start_date='-80y', end_date='-18y')
+# 👤 Crear víctima compatible con el modelo
+def crear_victima():
+    return Victima.objects.create(
+        genero=random.choice(["F", "M", "X", "S"]),
+        fecha_nacimiento=fake.date_of_birth(minimum_age=18, maximum_age=80),
+        comuna_residencia=random.randint(1, 15)
+    )
 
-        Victima.objects.create(
-            genero=random.choice(generos),
-            fecha_nacimiento=fecha_nacimiento,
-            comuna_residencia=random.choice(comunas)
-        )
-    print(f"Se crearon {n} víctimas correctamente.")
+# 📋 Diccionario de delitos con descripciones realistas
+delitos_con_descripciones = {
+    "amenazas": [
+        "La víctima recibió amenazas verbales en la vía pública por parte de un vecino.",
+        "Se registraron mensajes intimidatorios enviados por redes sociales.",
+        "El denunciante fue amenazado telefónicamente tras una discusión laboral."
+    ],
+    "lesiones dolosas": [
+        "La víctima fue golpeada en un conflicto barrial, provocándole heridas leves.",
+        "El agresor utilizó un objeto contundente durante la pelea, causando cortes.",
+        "Se produjo una pelea en un local nocturno con lesiones visibles en el rostro."
+    ],
+    "abuso sexual simple": [
+        "La víctima denunció tocamientos sin consentimiento en un transporte público.",
+        "Durante una fiesta, una persona realizó insinuaciones y contacto físico no deseado.",
+        "El hecho ocurrió en una plaza donde el agresor se abalanzó sobre la víctima."
+    ],
+    "trata de personas": [
+        "Se denunció el intento de traslado de una menor con fines de explotación.",
+        "Una mujer relató haber sido captada mediante engaños para fines laborales forzados.",
+        "El operativo en un domicilio detectó posibles víctimas de trata en situación de vulnerabilidad."
+    ],
+    "abuso de autoridad": [
+        "Un funcionario público excedió sus funciones y retuvo a un civil sin justificación.",
+        "Se denunció el uso de violencia por parte de un agente en un procedimiento.",
+        "El denunciante refiere amenazas durante un operativo policial injustificado."
+    ],
+    "tentativa de homicidio": [
+        "La víctima logró escapar tras un intento de ataque con arma blanca.",
+        "Un testigo declaró que el agresor disparó sin llegar a impactar.",
+        "Se denunció un intento de atropello intencional en la vía pública."
+    ],
+    "violencia familiar": [
+        "Se registraron episodios de violencia verbal y física dentro del hogar.",
+        "La víctima denunció golpes recibidos por parte de su pareja.",
+        "Intervino personal policial ante gritos y ruidos denunciados por vecinos."
+    ],
+}
+
+def generar_datos(cantidad=500):
+    reset_tabla(Denuncia)
+    reset_tabla(Victima)
+
+    print("📌 Verificando delitos...")
+    for nombre in delitos_con_descripciones:
+        Delito.objects.get_or_create(nombre=nombre)
+    print(f"✔️ Se aseguraron {len(delitos_con_descripciones)} tipos de delito.")
+
+    print("🛠 Generando denuncias...")
 
 
-def generar_denuncias(n=400):
-    delitos = list(Delito.objects.all())
-    victimas = list(Victima.objects.all())
-
-    if not delitos or not victimas:
-        print(" No hay delitos o víctimas en la base de datos.")
-        return
-
-    for _ in range(n):
-        delito = random.choice(delitos)
-        victima = random.choice(victimas)
-        expediente = faker.unique.bothify(text='EXP####-####')
-        fecha_ocurrencia = faker.date_between(start_date='-1y', end_date='today')
-        descripcion = faker.sentence(nb_words=12)
-        comisaria = random.randint(1, 15)
+    for delito_nombre, descripciones in delitos_con_descripciones.items():
+        delito = Delito.objects.get(nombre=delito_nombre)
+        descripcion = random.choice(descripciones)
+        victima = crear_victima()
 
         Denuncia.objects.create(
-            delito=delito,
             victima=victima,
-            expediente=expediente,
-            fecha_ocurrencia=fecha_ocurrencia,
+            delito=delito,
+            expediente=fake.unique.bothify("EXP-####-????"),
+            fecha_ocurrencia=fake.date_between(start_date="-6M", end_date="today"),
             descripcion=descripcion,
-            comisaria=comisaria
+            comisaria=str(random.randint(1, 15)),
+            fecha_registro=timezone.now()
         )
-    print(f"Se crearon {n} denuncias correctamente.")
+
+    restantes = max(0, cantidad - len(delitos_con_descripciones))
+    for _ in range(restantes):
+        delito_nombre = random.choice(list(delitos_con_descripciones.keys()))
+        descripcion = random.choice(delitos_con_descripciones[delito_nombre])
+        delito = Delito.objects.get(nombre=delito_nombre)
+        victima = crear_victima()
+
+        Denuncia.objects.create(
+            victima=victima,
+            delito=delito,
+            expediente=fake.unique.bothify("EXP-####-????"),
+            fecha_ocurrencia=fake.date_between(start_date="-6M", end_date="today"),
+            descripcion=descripcion,
+            comisaria=str(random.randint(1, 15)),
+            fecha_registro=timezone.now()
+        )
+
+    print("✅ Carga completa. Todos los delitos representados al menos una vez.")
+
 
 if __name__ == "__main__":
-    generar_victimas()
-    generar_denuncias()
+    generar_datos(500)

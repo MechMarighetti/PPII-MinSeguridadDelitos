@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container py-5">
+    <div class="card p-4 text-center shadow-sm">
+        <h5 class="mb-2">Sistema de Registro de Delitos</h5>
+        <p class="text-muted">Bienvenido al sistema de registro de delitos con fines estadísticos para las comisarías de la Ciudad Autónoma de Buenos Aires.</p>
+
+        <div class="d-flex justify-content-center gap-3 mt-4">
+            {% if is_editor or is_admin %}
+                <a href="{% url 'registrar_denuncia' %}" class="btn btn-info">📄 REGISTRAR DENUNCIA</a>
+            {% endif %}
+            {% if is_editor or is_consulta or is_admin %}
+                <a href="{% url 'ver_denuncias' %}" class="btn btn-info">🔍 VER DENUNCIAS</a>
+            {% endif %}
+            {% if is_admin or is_editor %}
+                <a href="{% url 'estadisticas'%}" class="btn btn-info">📊 ESTADÍSTICAS</a>
+            {% endif %}
+        </div>
+
+        <div class="mt-4 text-muted small">© 2025 Seguridad Ciudadana</div>
+    </div>
+</div>
+{% endblock %}
+
