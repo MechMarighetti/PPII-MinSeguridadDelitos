@@ -5,7 +5,7 @@ from django.contrib.auth.forms import AuthenticationForm
 class DenunciaForm(forms.ModelForm):
     class Meta:
         model = Denuncia
-        fields = ['delito', 'expediente', 'fecha_ocurrencia', 'descripcion', 'comisaria', 'fecha_registro']
+        fields = ['delito','expediente', 'fecha_ocurrencia', 'descripcion', 'comisaria']
         widgets = {
             'fecha_ocurrencia': forms.DateInput(
                 attrs={
@@ -14,15 +14,9 @@ class DenunciaForm(forms.ModelForm):
                     'class': 'form-control'
                 },
                 format='%Y-%m-%d'
+            
             ),
-            'fecha_registro': forms.DateInput(
-                attrs={
-                    'type': 'date',
-                    'placeholder': 'YYYY-MM-DD',
-                    'class': 'form-control'
-                },
-                format='%Y-%m-%d'
-            ),
+            'expediente': forms.TextInput(attrs={'readonly': 'readonly'}),
         }       
 class CustomLoginForm(AuthenticationForm):
     def __init__(self, *args, **kwargs):

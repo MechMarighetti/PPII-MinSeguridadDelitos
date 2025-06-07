@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container my-5" style="max-width: 1200px;">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="fw-bold">📋 Listado de Denuncias</h3>
+            <a href="{% url 'home' %}" class="btn btn-info text-white px-4">VOLVER</a>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-bordered align-middle text-center shadow-sm rounded overflow-hidden">
+                <thead class="table-primary">
+                    <tr>
+                        <th>ID</th>
+                        <th>Fecha</th>
+                        <th>Tipo</th>
+                        <th>Descripción</th>
+                        <th>Comisaría</th>
+                        <th>Registro</th>
+                        <th>Género</th>
+                        <th>Comuna</th>
+                        <th>Nacimiento</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for denuncia in denuncias %}
+                    <tr>
+                        <td>{{ denuncia.id }}</td>
+                        <td>{{ denuncia.fecha_ocurrencia|date:"d/m/Y" }}</td>
+                        <td>{{ denuncia.delito.nombre }}</td>
+                        <td class="text-start">{{ denuncia.descripcion }}</td>
+                        <td>{{ denuncia.get_comisaria_display }}</td>
+                        <td>{{ denuncia.fecha_registro|date:"d/m/Y H:i" }}</td>
+                        <td>{{ denuncia.victima.get_genero_display }}</td>
+                        <td>{{ denuncia.victima.get_comuna_residencia_display }}</td>
+                        <td>{{ denuncia.victima.fecha_nacimiento|date:"d/m/Y" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="9" class="text-muted">No hay denuncias registradas.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+</div>
+{% endblock %}
