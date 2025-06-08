@@ -4,10 +4,13 @@ from apps.victima.form import VictimaForm
 from .form import DenunciaForm
 from apps.victima.models import Victima
 from .models import Denuncia
+from .models import Delito
+from django.db.models import Count
+from django.http import JsonResponse
 from .utils import *
 from .utils import generar_numero_expediente
 
-@login_required
+@login_required 
 def registrar_denuncia(request):
     if request.method == 'POST':
         denuncia_form = DenunciaForm(request.POST)
@@ -28,6 +31,22 @@ def registrar_denuncia(request):
         'denuncia_form': denuncia_form,
         'victima_form': victima_form
     })
+
+def grafico_delitos_por_tipo(request):
+    
+    # Consulta para contar denuncias por tipo de delito
+    datos = Denuncia.objects.values('delito__nombre').annotate(total=Count('id')).order_by('-total')
+    
+    # Preparar datos para Chart.js
+    labels = [item['delito__nombre'] for item in datos]
+    valores = [item['total'] for item in datos]
+    
+    return JsonResponse({
+        'labels': labels,
+        'datos': valores,
+        'titulo': 'Denuncias por tipo de delito'
+    })
+
 
 
 @login_required
@@ -68,7 +87,7 @@ def editar_denuncia(request, id):
 def ver_denuncias(request):
     denuncias = Denuncia.objects.select_related('victima', 'delito').all().order_by('-fecha_registro')
     return render(request, 'denuncia/ver_denuncias.html', {'denuncias': denuncias})
-
+@login_required
 def estadisticas(request):
     return render(request, 'denuncia/estadisticas.html')
 

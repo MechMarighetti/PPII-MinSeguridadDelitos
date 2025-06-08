@@ -3,6 +3,81 @@
 {% block content %}
 <div class="container mt-5 text-center">
     <h3>Estadísticas</h3>
-    <p>Esta sección estará disponible próximamente.</p>
+    <p>Esta sección estará disponible próximamente ahora mismoooo.</p>
 </div>
+<div class="container mt-5">
+    <h4>Gráfico de Delitos</h4>
+    <p>Este gráfico muestra la cantidad de delitos reportados por tipo</p>
+    <canvas id="delitosChart"></canvas>
+
+</div>
+<script>
+// Función para crear gráficos
+function crearGrafico(elementId, apiUrl, chartType = 'pie') {
+    fetch(apiUrl)
+        .then(response => {
+        if (!response.ok) {
+            throw new Error('Error en la respuesta');
+        }
+        return response.json();
+    })
+        .then(data => {
+            const ctx = document.getElementById(elementId).getContext('2d');
+            new Chart(ctx, {
+                type: chartType, 
+                data: {
+                    labels: data.labels,
+                    datasets: [{
+                        label: data.titulo,
+                        data: data.datos,
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.2)',
+                            'rgba(54, 162, 235, 0.2)',
+                            'rgba(255, 206, 86, 0.2)',
+                            'rgba(75, 192, 192, 0.2)',
+                            'rgba(153, 102, 255, 0.2)',
+                            'rgba(255, 159, 64, 0.2)'
+                        ],
+                        borderColor: [
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 206, 86, 1)',
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(153, 102, 255, 1)',
+                            'rgba(255, 159, 64, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+
+                        legend: {
+                            position: 'top',
+                        },
+                        title: {
+                            display: true,
+                            text: data.titulo
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        })
+        .catch(error => {
+        console.error('Error al cargar datos:', error);
+    });
+}
+
+// Inicializar gráficos cuando la página cargue
+document.addEventListener('DOMContentLoaded', function() {
+    crearGrafico('delitosChart', '{% url "grafico_delitos" %}');
+
+});
+</script>
 {% endblock %}

@@ -33,4 +33,5 @@ urlpatterns = [
     path('', lambda request: redirect('login', permanent=False)),
     
     path('estadisticas/', views.estadisticas, name='estadisticas'),
+    path('api/grafico-delitos/', views.grafico_delitos_por_tipo, name='grafico_delitos'),
 ]
