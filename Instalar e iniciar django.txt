@@ -17,6 +17,8 @@ para cambiar la politica de la sesion
 
 luego ejecutar pip install django
 pip install -r requirements.txt
+pip install django-widget-tweaks
+//si surge error con el comando anterior: python -m pip install django-widget-tweaks
 
 Este comando sincroniza la base de datos con los modelos de tu aplicación, asegurando que la estructura de la base de datos refleje el código actual.
 Antes de ejecutar migrate, normalmente se usa python manage.py makemigrations para generar los archivos de migración a partir de los cambios en los modelos.
