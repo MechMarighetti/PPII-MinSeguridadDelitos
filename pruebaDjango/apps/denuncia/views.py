@@ -44,10 +44,12 @@ def grafico_delitos_por_tipo(request):
     return JsonResponse({
         'labels': labels,
         'datos': valores,
-        'titulo': 'Denuncias por tipo de delito'
+        'titulo': 'Denuncias por tipo de delito',
+        'tipo': 'polarArea'
     })
 
 
+    
 
 @login_required
 def denuncia_exitosa(request):

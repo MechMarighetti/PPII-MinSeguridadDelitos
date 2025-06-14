@@ -9,11 +9,24 @@
     <h4>Gráfico de Delitos</h4>
     <p>Este gráfico muestra la cantidad de delitos reportados por tipo</p>
     <canvas id="delitosChart"></canvas>
-
 </div>
+<div class="container mt-5">
+    <h4>Víctimas por género</h4>
+    <p>Este gráfico muestra la cantidad de victimas por genero</p>
+    <canvas id="generosChart"></canvas>
+</div>
+<div class="container mt-5">
+    <h4>Víctimas por edad</h4>
+    <p>Este gráfico muestra la cantidad de victimas por edad</p>
+
+    <canvas id="edadChart"></canvas>
+</div>
+
+
+
 <script>
 // Función para crear gráficos
-function crearGrafico(elementId, apiUrl, chartType = 'pie') {
+function crearGrafico(elementId, apiUrl, chartType) {
     fetch(apiUrl)
         .then(response => {
         if (!response.ok) {
@@ -24,7 +37,7 @@ function crearGrafico(elementId, apiUrl, chartType = 'pie') {
         .then(data => {
             const ctx = document.getElementById(elementId).getContext('2d');
             new Chart(ctx, {
-                type: chartType, 
+                type: data.tipo || 'bar', // Tipo de gráfico por defecto es 'bar'
                 data: {
                     labels: data.labels,
                     datasets: [{
@@ -74,9 +87,13 @@ function crearGrafico(elementId, apiUrl, chartType = 'pie') {
     });
 }
 
+
 // Inicializar gráficos cuando la página cargue
 document.addEventListener('DOMContentLoaded', function() {
     crearGrafico('delitosChart', '{% url "grafico_delitos" %}');
+    crearGrafico('generosChart', '{% url "grafico_victimas_genero" %}', 'pie');
+    crearGrafico('edadChart', '{% url "grafico_victimas_edad" %}', 'bar');
+    // crear urls de los graficos antes.
 
 });
 </script>

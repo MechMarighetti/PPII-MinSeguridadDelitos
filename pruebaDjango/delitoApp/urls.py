@@ -21,6 +21,7 @@ from django.shortcuts import redirect
 from django.contrib.auth import views as auth_views
 from django.urls import reverse_lazy
 from apps.denuncia import views
+from apps.victima import views as victima_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -34,4 +35,6 @@ urlpatterns = [
     
     path('estadisticas/', views.estadisticas, name='estadisticas'),
     path('api/grafico-delitos/', views.grafico_delitos_por_tipo, name='grafico_delitos'),
+    path('api/grafico_victimas_por_edad/', victima_views.grafico_victimas_por_edad, name='grafico_victimas_edad'),
+    path('api/grafico_victimas_por_genero/', victima_views.grafico_victimas_por_genero, name='grafico_victimas_genero'),
 ]
