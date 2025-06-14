@@ -25,8 +25,11 @@ def reset_tabla(model):
 # 👤 Crear víctima compatible con el modelo
 def crear_victima():
     return Victima.objects.create(
-        genero=random.choice(["F", "M", "X", "S"]),
-        fecha_nacimiento=fake.date_of_birth(minimum_age=18, maximum_age=80),
+        genero=random.choices(
+            ["F", "M", "X", "S"],
+            weights=[0.55, 0.43, 0.12, 0.03]  # Mayor probabilidad para "F", menor para "X"
+        )[0],
+        fecha_nacimiento=fake.date_of_birth(minimum_age=7, maximum_age=67),
         comuna_residencia=random.randint(1, 15)
     )
 
@@ -98,7 +101,13 @@ def generar_datos(cantidad=500):
 
     restantes = max(0, cantidad - len(delitos_con_descripciones))
     for _ in range(restantes):
-        delito_nombre = random.choice(list(delitos_con_descripciones.keys()))
+        delito_nombre = random.choices(
+            population=list(delitos_con_descripciones.keys()),
+            weights=[
+            3 if k in ["lesiones dolosas", "amenazas"] else 1
+            for k in delitos_con_descripciones.keys()
+            ]
+        )[0]
         descripcion = random.choice(delitos_con_descripciones[delito_nombre])
         delito = Delito.objects.get(nombre=delito_nombre)
         victima = crear_victima()
