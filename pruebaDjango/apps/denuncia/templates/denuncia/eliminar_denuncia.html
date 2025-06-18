@@ -1,0 +1,15 @@
+from django.contrib.auth.decorators import user_passes_test
+from django.shortcuts import render, get_object_or_404, redirect
+from .models import Denuncia
+
+@user_passes_test(lambda u: u.is_superuser)
+def confirmar_eliminacion_denuncia(request, id):
+    denuncia = get_object_or_404(Denuncia, id=id)
+
+    if request.method == 'POST':
+        denuncia.delete()
+        return redirect('ver_denuncias')
+
+    return render(request, 'denuncia/confirmar_eliminacion.html', {
+        'denuncia': denuncia
+    })

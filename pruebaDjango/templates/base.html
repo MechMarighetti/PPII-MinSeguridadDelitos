@@ -4,31 +4,45 @@
 <head>
     <meta charset="UTF-8">
     <title>{% block title %}Sistema de Denuncias{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap & estilos -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/estilos.css' %}">
+    {% block extra_css %}{% endblock %}
 </head>
-<body style="background-image: url('{% static 'images/fondo.png' %}'); background-size: cover; background-repeat: no-repeat; background-position: center center; min-height: 100vh;">
+
+<body style="background-image: url('{% static 'images/fondo.png' %}');
+              background-size: cover;
+              background-repeat: no-repeat;
+              background-position: center center;
+              min-height: 100vh;">
 
     {% if user.is_authenticated %}
-        <nav class="navbar navbar-expand-lg navbar-dark bg-primary px-4 shadow-sm">
-        <div class="container-fluid d-flex justify-content-between align-items-center">
-            <a class="navbar-brand d-flex align-items-center gap-2 fw-bold" href="{% url 'home' %}">
-            🔒 Seguridad Ciudadana
-            </a>
-            <div class="d-flex align-items-center gap-3">
-            <span class="text-white">Hola, {{ user.username }}</span>
-            <a href="{% url 'logout' %}" class="btn btn-light btn-sm px-3">Salir</a>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm px-4">
+            <div class="container-fluid d-flex justify-content-between align-items-center">
+                <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="{% url 'home' %}">
+                    🔒 Seguridad Ciudadana
+                </a>
+                <div class="d-flex align-items-center gap-3">
+                    <span class="text-white">Hola, {{ user.username }}</span>
+                    <form method="post" action="{% url 'logout' %}" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-light btn-sm px-3">Salir</button>
+                    </form>
+                </div>
             </div>
-        </div>
         </nav>
-
     {% endif %}
 
-    <div class="container mt-4">
+    <div class="container mt-4 mb-5">
         {% block content %}{% endblock %}
     </div>
 
+    <!-- Bootstrap y librerías -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    {% block extra_js %}{% endblock %}
 </body>
 </html>

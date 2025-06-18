@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-5 bg-white p-4 rounded shadow-sm">
+
+    <h4 class="mb-4 text-danger">¿Confirmás que querés eliminar esta denuncia?</h4>
+
+    <table class="table table-bordered">
+        <tr><th>ID</th><td>{{ denuncia.id }}</td></tr>
+        <tr><th>Expediente</th><td>{{ denuncia.expediente }}</td></tr>
+        <tr><th>Delito</th><td>{{ denuncia.delito }}</td></tr>
+        <tr><th>Comisaría</th><td>{{ denuncia.comisaria }}</td></tr>
+    </table>
+
+    <form method="post" class="d-flex justify-content-between mt-4">
+        {% csrf_token %}
+        <a href="{% url 'detalle_denuncia' denuncia.id %}" class="btn btn-secondary">Cancelar</a>
+        <button type="submit" class="btn btn-danger fw-bold">Eliminar Definitivamente</button>
+    </form>
+
+</div>
+{% endblock %}

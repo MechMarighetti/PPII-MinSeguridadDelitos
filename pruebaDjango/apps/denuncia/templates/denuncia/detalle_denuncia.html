@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container mt-5 bg-white p-4 rounded shadow-sm">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="mb-0">Detalle de Denuncia</h3>
+        <a href="{% url 'ver_denuncias' %}" class="btn volver-btn">← VOLVER</a>
+    </div>
+
+    <table class="table table-bordered">
+        <tbody>
+            <tr><th>ID</th><td>{{ denuncia.id }}</td></tr>
+            <tr><th>Expediente</th><td>{{ denuncia.expediente }}</td></tr>
+            <tr><th>Fecha del Hecho</th><td>{{ denuncia.fecha_ocurrencia }}</td></tr>
+            <tr><th>Fecha de Registro</th><td>{{ denuncia.fecha_registro }}</td></tr>
+            <tr><th>Comisaría</th><td>{{ denuncia.comisaria }}</td></tr>
+            <tr><th>Delito</th><td>{{ denuncia.delito }}</td></tr>
+            <tr><th>Descripción</th><td>{{ denuncia.descripcion }}</td></tr>
+            <tr><th>Género de la Víctima</th><td>{{ denuncia.victima.genero }}</td></tr>
+            <tr><th>Fecha de Nacimiento</th><td>{{ denuncia.victima.fecha_nacimiento }}</td></tr>
+            <tr><th>Comuna</th><td>{{ denuncia.victima.comuna_residencia }}</td></tr>
+        </tbody>
+    </table>
+
+    <div class="d-flex justify-content-between mt-4">
+        {% if is_admin or is_editor %}
+            <a href="{% url 'editar_denuncia' denuncia.id %}" class="btn btn-primary px-4 py-2 fw-bold" style="background: linear-gradient(to right, #2193b0, #6dd5ed); border: none; border-radius: 30px;">
+                ✏️ Editar Denuncia
+            </a>
+        {% endif %}
+
+        {% if is_admin %}
+            <form method="post" action="{% url 'eliminar_denuncia' denuncia.id %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger px-4 py-2 fw-bold" style="background: linear-gradient(to right, #e52d27, #b31217); border: none; border-radius: 30px;">
+                    🗑️ Borrar Denuncia
+                </button>
+            </form>
+        {% endif %}
+    </div>
+
+</div>
+
+<style>
+    .volver-btn {
+        background: linear-gradient(to right, #36d1dc, #5b86e5);
+        border: none;
+        color: white;
+        font-weight: bold;
+        padding: 10px 20px;
+        border-radius: 50px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        text-decoration: none;
+    }
+</style>
+{% endblock %}

@@ -1,14 +1,16 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from apps.victima.form import VictimaForm
 from .form import DenunciaForm
 from apps.victima.models import Victima
-from .models import Denuncia
-from .models import Delito
-from django.db.models import Count
+from .models import Denuncia, Delito
+from django.db.models import Count, Q
 from django.http import JsonResponse
-from .utils import *
-from .utils import generar_numero_expediente
+from .utils import grupo_requerido, generar_numero_expediente
+from django.core.paginator import Paginator
+
+
+# -------------------- Registro --------------------
 
 @login_required 
 def registrar_denuncia(request):
@@ -23,7 +25,7 @@ def registrar_denuncia(request):
             denuncia.save()
             return redirect('denuncia_exitosa')
     else:
-        expediente_generado = generar_numero_expediente()  
+        expediente_generado = generar_numero_expediente()
         denuncia_form = DenunciaForm(initial={'expediente': expediente_generado})
         victima_form = VictimaForm()
 
@@ -32,29 +34,12 @@ def registrar_denuncia(request):
         'victima_form': victima_form
     })
 
-def grafico_delitos_por_tipo(request):
-    
-    # Consulta para contar denuncias por tipo de delito
-    datos = Denuncia.objects.values('delito__nombre').annotate(total=Count('id')).order_by('-total')
-    
-    # Preparar datos para Chart.js
-    labels = [item['delito__nombre'] for item in datos]
-    valores = [item['total'] for item in datos]
-    
-    return JsonResponse({
-        'labels': labels,
-        'datos': valores,
-        'titulo': 'Denuncias por tipo de delito',
-        'tipo': 'polarArea'
-    })
-
-
-    
 
 @login_required
 def denuncia_exitosa(request):
     return render(request, 'denuncia/exito.html')
 
+# -------------------- Inicio --------------------
 
 @login_required
 def home(request):
@@ -69,6 +54,21 @@ def home(request):
 
     return render(request, 'home.html', contexto)
 
+# -------------------- Vista Detalle --------------------
+
+@login_required
+def detalle_denuncia(request, id):
+    denuncia = get_object_or_404(Denuncia, id=id)
+    user = request.user
+    grupos = user.groups.values_list('name', flat=True)
+
+    return render(request, 'denuncia/detalle_denuncia.html', {
+        'denuncia': denuncia,
+        'is_admin': user.is_superuser,
+        'is_editor': 'editor' in grupos,
+    })
+
+# -------------------- Edición --------------------
 
 @grupo_requerido('editor')
 def editar_denuncia(request, id):
@@ -78,19 +78,80 @@ def editar_denuncia(request, id):
         form = DenunciaForm(request.POST, instance=denuncia)
         if form.is_valid():
             form.save()
-            return redirect('home')
+            return redirect('detalle_denuncia', id=denuncia.id)
     else:
         form = DenunciaForm(instance=denuncia)
 
-    return render(request, 'editar_denuncia.html', {'form': form})
+    return render(request, 'denuncia/editar_denuncia.html', {
+        'form': form,
+        'denuncia': denuncia,
+    })
 
+# -------------------- Ver Denuncias --------------------
 
 @login_required
 def ver_denuncias(request):
-    denuncias = Denuncia.objects.select_related('victima', 'delito').all().order_by('-fecha_registro')
-    return render(request, 'denuncia/ver_denuncias.html', {'denuncias': denuncias})
+    cantidad = request.GET.get('cantidad', 10)
+    busqueda = request.GET.get('buscar', '').strip()
+
+    denuncias_lista = Denuncia.objects.select_related('victima', 'delito')
+
+    if busqueda:
+        if busqueda.isdigit():
+            denuncias_lista = denuncias_lista.filter(
+                Q(id=int(busqueda)) |
+                Q(expediente__icontains=busqueda) |
+                Q(descripcion__icontains=busqueda) |
+                Q(comisaria__icontains=busqueda) |
+                Q(delito__nombre__icontains=busqueda)
+            )
+        else:
+            denuncias_lista = denuncias_lista.filter(
+                Q(expediente__icontains=busqueda) |
+                Q(descripcion__icontains=busqueda) |
+                Q(comisaria__icontains=busqueda) |
+                Q(delito__nombre__icontains=busqueda)
+            )
+
+    denuncias_lista = denuncias_lista.order_by('-fecha_registro')
+    paginator = Paginator(denuncias_lista, cantidad)
+    pagina = request.GET.get('page')
+    denuncias = paginator.get_page(pagina)
+
+    return render(request, 'denuncia/ver_denuncias.html', {
+        'denuncias': denuncias,
+        'cantidad': int(cantidad),
+        'buscar': busqueda,
+    })
+
+# -------------------- Estadísticas --------------------
+
 @login_required
 def estadisticas(request):
     return render(request, 'denuncia/estadisticas.html')
 
+@login_required
+def grafico_delitos_por_tipo(request):
+    datos = Denuncia.objects.values('delito__nombre').annotate(total=Count('id')).order_by('-total')
 
+    labels = [item['delito__nombre'] for item in datos]
+    valores = [item['total'] for item in datos]
+
+    return JsonResponse({
+        'labels': labels,
+        'datos': valores,
+        'titulo': 'Denuncias por tipo de delito',
+        'tipo': 'polarArea'
+    })
+
+@user_passes_test(lambda u: u.is_superuser)
+def eliminar_denuncia(request, id):
+    denuncia = get_object_or_404(Denuncia, id=id)
+
+    if request.method == 'POST':
+        denuncia.delete()
+        return redirect('ver_denuncias')
+
+    return render(request, 'denuncia/confirmar_eliminacion.html', {
+        'denuncia': denuncia
+    })

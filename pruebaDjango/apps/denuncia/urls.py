@@ -12,13 +12,15 @@ urlpatterns = [
     path('denuncias/exito/', views.denuncia_exitosa, name='denuncia_exitosa'),
 
     path('exito/', views.denuncia_exitosa, name='denuncia_exitosa'),
+    path('logout/', auth_views.LogoutView.as_view(next_page='login'), name='logout'),
     
     path('login/', auth_views.LoginView.as_view(
         template_name='login.html',
         authentication_form=CustomLoginForm
         ), name='login'),
     
-    path('editar/<int:id>/', views.editar_denuncia, name='editar_denuncia'),
-    
     path('ver/', views.ver_denuncias, name='ver_denuncias'),
+    path('detalle/<int:id>/', views.detalle_denuncia, name='detalle_denuncia'),  # ✅ ESTA ES LA CLAVE
+    path('editar/<int:id>/', views.editar_denuncia, name='editar_denuncia'),
+    path('eliminar/<int:id>/', views.eliminar_denuncia, name='eliminar_denuncia'),
 ]

@@ -1,43 +1,55 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container mt-5 text-center">
-    <h3>Estadísticas</h3>
-    <p>Esta sección estará disponible próximamente ahora mismoooo.</p>
-</div>
-<div class="container mt-5">
-    <h4>Gráfico de Delitos</h4>
-    <p>Este gráfico muestra la cantidad de delitos reportados por tipo</p>
-    <canvas id="delitosChart"></canvas>
-</div>
-<div class="container mt-5">
-    <h4>Víctimas por género</h4>
-    <p>Este gráfico muestra la cantidad de victimas por genero</p>
-    <canvas id="generosChart"></canvas>
-</div>
-<div class="container mt-5">
-    <h4>Víctimas por edad</h4>
-    <p>Este gráfico muestra la cantidad de victimas por edad</p>
+<div class="container mt-5 bg-white p-4 rounded shadow-sm">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="mb-0">Estadísticas</h3>
+        <a href="{% url 'home' %}" class="btn volver-btn">← VOLVER</a>
+    </div>
 
-    <canvas id="edadChart"></canvas>
+    <div class="mb-5">
+        <h4>Gráfico de Delitos</h4>
+        <p>Este gráfico muestra la cantidad de delitos reportados por tipo</p>
+        <canvas id="delitosChart"></canvas>
+    </div>
+
+    <div class="mb-5">
+        <h4>Víctimas por género</h4>
+        <p>Este gráfico muestra la cantidad de víctimas por género</p>
+        <canvas id="generosChart"></canvas>
+    </div>
+
+    <div>
+        <h4>Víctimas por edad</h4>
+        <p>Este gráfico muestra la cantidad de víctimas por edad</p>
+        <canvas id="edadChart"></canvas>
+    </div>
 </div>
 
-
+<style>
+    .volver-btn {
+        background: linear-gradient(to right, #36d1dc, #5b86e5);
+        border: none;
+        color: white;
+        font-weight: bold;
+        padding: 10px 20px;
+        border-radius: 50px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        text-decoration: none;
+    }
+</style>
 
 <script>
-// Función para crear gráficos
 function crearGrafico(elementId, apiUrl, chartType) {
     fetch(apiUrl)
         .then(response => {
-        if (!response.ok) {
-            throw new Error('Error en la respuesta');
-        }
-        return response.json();
-    })
+            if (!response.ok) throw new Error('Error en la respuesta');
+            return response.json();
+        })
         .then(data => {
             const ctx = document.getElementById(elementId).getContext('2d');
             new Chart(ctx, {
-                type: data.tipo || 'bar', // Tipo de gráfico por defecto es 'bar'
+                type: data.tipo || chartType || 'bar',
                 data: {
                     labels: data.labels,
                     datasets: [{
@@ -65,36 +77,24 @@ function crearGrafico(elementId, apiUrl, chartType) {
                 options: {
                     responsive: true,
                     plugins: {
-
-                        legend: {
-                            position: 'top',
-                        },
-                        title: {
-                            display: true,
-                            text: data.titulo
-                        }
+                        legend: { position: 'top' },
+                        title: { display: true, text: data.titulo }
                     },
                     scales: {
-                        y: {
-                            beginAtZero: true
-                        }
+                        y: { beginAtZero: true }
                     }
                 }
             });
         })
         .catch(error => {
-        console.error('Error al cargar datos:', error);
-    });
+            console.error('Error al cargar datos:', error);
+        });
 }
 
-
-// Inicializar gráficos cuando la página cargue
 document.addEventListener('DOMContentLoaded', function() {
     crearGrafico('delitosChart', '{% url "grafico_delitos" %}');
     crearGrafico('generosChart', '{% url "grafico_victimas_genero" %}', 'pie');
     crearGrafico('edadChart', '{% url "grafico_victimas_edad" %}', 'bar');
-    // crear urls de los graficos antes.
-
 });
 </script>
 {% endblock %}
