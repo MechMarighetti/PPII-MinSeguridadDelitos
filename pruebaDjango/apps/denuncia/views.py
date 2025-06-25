@@ -10,7 +10,6 @@ from .utils import grupo_requerido, generar_numero_expediente
 from django.core.paginator import Paginator
 
 
-# -------------------- Registro --------------------
 
 @login_required 
 def registrar_denuncia(request):
@@ -39,7 +38,7 @@ def registrar_denuncia(request):
 def denuncia_exitosa(request):
     return render(request, 'denuncia/exito.html')
 
-# -------------------- Inicio --------------------
+
 
 @login_required
 def home(request):
@@ -54,7 +53,6 @@ def home(request):
 
     return render(request, 'home.html', contexto)
 
-# -------------------- Vista Detalle --------------------
 
 @login_required
 def detalle_denuncia(request, id):
@@ -67,8 +65,6 @@ def detalle_denuncia(request, id):
         'is_admin': user.is_superuser,
         'is_editor': 'editor' in grupos,
     })
-
-# -------------------- Edición --------------------
 
 @grupo_requerido('editor')
 def editar_denuncia(request, id):
@@ -87,7 +83,6 @@ def editar_denuncia(request, id):
         'denuncia': denuncia,
     })
 
-# -------------------- Ver Denuncias --------------------
 
 @login_required
 def ver_denuncias(request):
@@ -124,11 +119,15 @@ def ver_denuncias(request):
         'buscar': busqueda,
     })
 
-# -------------------- Estadísticas --------------------
 
 @login_required
 def estadisticas(request):
-    return render(request, 'denuncia/estadisticas.html')
+    grupos = request.user.groups.values_list('name', flat=True)
+    return render(request, 'denuncia/estadisticas.html', {
+        'is_admin': request.user.is_superuser,
+        'is_editor': 'editor' in grupos,
+        'is_consulta': 'consulta' in grupos,
+    })
 
 @login_required
 def grafico_delitos_por_tipo(request):

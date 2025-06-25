@@ -18,9 +18,10 @@ urlpatterns = [
         template_name='login.html',
         authentication_form=CustomLoginForm
         ), name='login'),
+    path('estadisticas/', views.estadisticas, name='estadisticas'),
     
     path('ver/', views.ver_denuncias, name='ver_denuncias'),
-    path('detalle/<int:id>/', views.detalle_denuncia, name='detalle_denuncia'),  # ✅ ESTA ES LA CLAVE
+    path('detalle/<int:id>/', views.detalle_denuncia, name='detalle_denuncia'),
     path('editar/<int:id>/', views.editar_denuncia, name='editar_denuncia'),
     path('eliminar/<int:id>/', views.eliminar_denuncia, name='eliminar_denuncia'),
 ]
