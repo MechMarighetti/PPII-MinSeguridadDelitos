@@ -7,7 +7,7 @@
             Bienvenido al sistema de registro de delitos con fines estadísticos para las comisarías de la Ciudad Autónoma de Buenos Aires.
         </p>
 
-        <div class="d-flex flex-column flex-md-row justify-content-center gap-3 mt-4">
+        <div class="d-flex flex-column flex-md-row justify-content-center gap-3 mt-6">
             {% if is_editor or is_admin %}
                 <a href="{% url 'registrar_denuncia' %}" class="btn btn-lg fw-bold px-4 py-2 text-white"
                    style="background: linear-gradient(to right, #36d1dc, #5b86e5); border-radius: 30px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
@@ -24,7 +24,7 @@
 
             {% if is_admin or is_editor or is_consulta %}
                 <a href="{% url 'estadisticas' %}" class="btn btn-lg fw-bold px-4 py-2 text-white"
-                   style="background: linear-gradient(to right, #36d1dc, #5b86e5); border-radius: 30px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                   style="background: linear-gradient(to right, #36d1dc, #5b86e5); white-space: nowrap; min-width: 180px; border-radius: 30px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
                     📊 Estadísticas
                 </a>
             {% endif %}
